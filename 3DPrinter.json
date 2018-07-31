@@ -1,0 +1,15 @@
+{
+    "Server": {
+        "PORT": "8080"
+    },
+    "Printers": {
+        "Printer1": {
+            "Alias": "P1",
+            "Serial Port": "Serial1"
+        },
+        "Printer2": {
+            "Alias": "P2",
+            "Serial Port": "Serial2"
+        }
+    }
+}

@@ -13,7 +13,7 @@ PossibleUrls = (
                 '/', 'Index'
 )
 
-port_num = settings.configuration.getint('Server','port')
+port_num = settings.configuration['Server']['Port']
 
 def cleanup():
     print ('cleaning up before exit..')

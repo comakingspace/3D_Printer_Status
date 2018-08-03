@@ -17,7 +17,7 @@
 #include <string.h>
 /************************* WiFi Access Point *********************************/
 #define WLAN_SSID       "CoMakingSpace"
-#define WLAN_PASS       "ENTERWIFIPASS"
+#define WLAN_PASS       "ENTERNETWORKPASS"
 /************************* Adafruit.io Setup *********************************/
 #define AIO_SERVER      "comakingcontroller"
 #define AIO_SERVERPORT  1883                   // use 8883 for SSL
@@ -49,7 +49,9 @@ void setup() {
     delay(500);
   }
   mqtt.subscribe(&p1commands);
-  printer1.publish("P1 conntected");
+  MQTT_connect();
+  //Serial.println("Started..now publishing Hello..");
+  printer1.publish("Hello from printer 1");
 }
 uint32_t x=0;
 void loop() {
@@ -62,12 +64,24 @@ void loop() {
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
     if (subscription == &p1commands) {
-      Serial.println(message);
-      delay(1000);
-       if (Serial.available() > 0) {
-          receivedChar = Serial.read();
-          printer1.publish(receivedChar);
-          }
+      char* message = (char *)p1commands.lastread;
+      //Serial.println(message);
+      delay(5000);
+      String readString;
+      while (Serial.available()) {
+        char c = Serial.read();  //gets one byte from serial buffer
+        readString += c; //makes the String readString
+        delay(2);  //slow looping to allow buffer to fill with next character
+        //Serial.println(readString);
+        }
+
+      if (readString.length() >0) {
+        printer1.publish(const_cast<char*>(readString.c_str()));
+        //Serial.println("published:");
+        //Serial.println(readString);  //so you can see the captured String 
+        readString="";
+        } 
+
     }
   }
   // Now we can publish stuff!
@@ -95,11 +109,11 @@ void MQTT_connect() {
   if (mqtt.connected()) {
     return;
   }
-  Serial.print("Connecting to MQTT... ");
+  //Serial.print("Connecting to MQTT... ");
   uint8_t retries = 3;
   while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
-       Serial.println(mqtt.connectErrorString(ret));
-       Serial.println("Retrying MQTT connection in 5 seconds...");
+       //Serial.println(mqtt.connectErrorString(ret));
+       //Serial.println("Retrying MQTT connection in 5 seconds...");
        mqtt.disconnect();
        delay(5000);  // wait 5 seconds
        retries--;
@@ -108,5 +122,5 @@ void MQTT_connect() {
          while (1);
        }
   }
-  Serial.println("MQTT Connected!");
+  //Serial.println("MQTT Connected!");
 }
